@@ -23,7 +23,7 @@ class LogAnalyzer:
         endpoint_counts = Counter(endpoints)
         return max(endpoint_counts.items(), key=lambda x: x[1])
 
-    def detect_suspicious_activity(self, threshold=5):
+    def detect_suspicious_activity(self, threshold=10):
         failed_login_pattern = re.compile(r'(\b(?:\d{1,3}\.){3}\d{1,3}\b).*?401.*?Invalid credentials')
         failed_logins = failed_login_pattern.findall(self.log_data)
         failed_login_counts = Counter(failed_logins)
@@ -40,22 +40,25 @@ class LogAnalyzer:
             writer = csv.writer(csvfile)
 
             # Write requests per IP
-            writer.writerow(["Task", "Detail", "Count"])
             writer.writerow(["Requests per IP"])
             writer.writerow(["IP Address", "Request Count"])
             for ip, count in requests_per_ip:
                 writer.writerow([ip, count])
 
+            # Separate sections with an empty row
+            writer.writerow([])
+
             # Write most frequent endpoint
-            writer.writerow([])  # Empty row for separation
-            writer.writerow(["Most Frequently Accessed Endpoint"])
+            writer.writerow(["Most Accessed Endpoint"])
             writer.writerow(["Endpoint", "Access Count"])
             writer.writerow([most_frequent_endpoint, endpoint_count])
 
+            # Separate sections with an empty row
+            writer.writerow([])
+
             # Write suspicious activity
-            writer.writerow([])  # Empty row for separation
             writer.writerow(["Suspicious Activity"])
-            writer.writerow(["IP Address", "Failed Login Attempts"])
+            writer.writerow(["IP Address", "Failed Login Count"])
             for ip, count in suspicious_ips.items():
                 writer.writerow([ip, count])
 
